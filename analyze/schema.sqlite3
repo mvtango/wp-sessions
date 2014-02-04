@@ -1,0 +1,7 @@
+CREATE TABLE sessions (sessionid integer primary key asc, session text unique, `stamp` text, `userid` integer);
+CREATE TABLE hits(sessionid, userid, stamp, FOREIGN KEY(sessionid) REFERENCES sessionid(sessions), FOREIGN KEY(userid) REFERENCES userid(users));
+CREATE TABLE users (userid integer primary key asc, user text unique);
+CREATE VIEW allhits as select users.user as user, sessions.session as session, hits.stamp as stamp from users,sessions,hits where hits.sessionid=sessions.sessionid and users.userid=hits.userid;
+CREATE VIEW hits_per_user as select count(*) as hits, min(stamp) as von, max(stamp) as bis, user from allhits group by user;
+CREATE VIEW sessions_per_user as select count(*) as sessions,user from (select distinct user, session from allhits) group by user;
+CREATE VIEW session_summary as select min(stamp) as von, max(stamp) as bis, count(*) as hits, user as user from allhits group by session;
